@@ -2388,6 +2388,19 @@ static int bpf_apply_relo_map(struct bpf_elf_ctx *ctx, struct bpf_elf_prog *prog
 	return 0;
 }
 
+static int bpf_apply_relo_glob(struct bpf_elf_ctx *ctx, struct bpf_elf_prog *prog,
+			       GElf_Rel *relo, GElf_Sym *sym,
+			       struct bpf_relo_props *props)
+{
+	unsigned int insn_off = relo->r_offset / sizeof(struct bpf_insn);
+
+	if (insn_off >= prog->insns_num)
+		return -EINVAL;
+
+	prog->insns[insn_off].imm = sym->st_value;
+	return 0;
+}
+
 static int bpf_apply_relo_call(struct bpf_elf_ctx *ctx, struct bpf_elf_prog *prog,
 			       GElf_Rel *relo, GElf_Sym *sym,
 			       struct bpf_relo_props *props)
@@ -2444,8 +2457,10 @@ static int bpf_apply_relo_data(struct bpf_elf_ctx *ctx,
 			ret = bpf_apply_relo_map(ctx, prog, &relo, &sym, props);
 		else if (sym.st_shndx == ctx->sec_text)
 			ret = bpf_apply_relo_call(ctx, prog, &relo, &sym, props);
+		else if (sym.st_shndx == 0 && GELF_ST_BIND(sym.st_info) == STB_GLOBAL)
+			ret = bpf_apply_relo_glob(ctx, prog, &relo, &sym, props);
 		else
-			fprintf(stderr, "ELF contains non-{map,call} related relo data in entry %u pointing to section %u! Compiler bug?!\n",
+			fprintf(stderr, "ELF contains non-{map,call,global} related relo data in entry %u pointing to section %u! Compiler bug?!\n",
 				relo_ent, sym.st_shndx);
 		if (ret < 0)
 			return ret;
