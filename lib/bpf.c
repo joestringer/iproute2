@@ -108,6 +108,16 @@ static const struct bpf_prog_meta __bpf_prog_meta[] = {
 		.subdir		= "sk",
 		.section	= ELF_SECTION_PROG,
 	},
+	[BPF_PROG_TYPE_SOCK_OPS] = {
+		.type		= "sock_ops",
+		.subdir		= "sa",
+		.section	= ELF_SECTION_PROG,
+	},
+	[BPF_PROG_TYPE_SK_MSG] = {
+		.type		= "sk_msg",
+		.subdir		= "sa",
+		.section	= ELF_SECTION_PROG,
+	},
 	[BPF_PROG_TYPE_CGROUP_SKB] = {
 		.type		= "skb",
 		.subdir		= "skb",
@@ -126,6 +136,7 @@ static const char * const attach_type_strings[] = {
 	[BPF_CGROUP_INET_SOCK_CREATE]	= "sock_create",
 	[BPF_CGROUP_SOCK_OPS]		= "sock_ops",
 	[BPF_CGROUP_DEVICE]		= "device",
+	[BPF_SK_MSG_VERDICT]		= "msg_verdict",
 	[BPF_CGROUP_INET4_BIND]		= "bind4",
 	[BPF_CGROUP_INET6_BIND]		= "bind6",
 	[BPF_CGROUP_INET4_CONNECT]	= "connect4",
